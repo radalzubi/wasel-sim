@@ -16,8 +16,10 @@ def compute_driver_subscription_revenue(drivers: DriverCohortState, params: Wase
 
 
 def compute_rider_subscription_revenue(riders: RiderState, params: WaselParams) -> float:
-    # Rider subscription revenue is intentionally excluded from the model per updated instruction.
-    return 0.0
+    return (
+        riders.go_subscribers * params.go_monthly_fee
+        + riders.pass_subscribers * params.pass_monthly_fee
+    )
 
 
 def compute_cogs(
