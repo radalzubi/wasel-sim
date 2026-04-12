@@ -1,0 +1,29 @@
+uber:
+  label: Uber Jordan
+  type: incumbent
+  strategic_threat: extreme
+  notes:
+    - Largest rider pool
+    - Deep capital reserves
+    - Cannot structurally match Wasel flat-fee economics without margin collapse
+careem:
+  label: Careem Jordan
+  type: incumbent
+  strategic_threat: extreme
+  notes:
+    - Operationally similar to Uber post-acquisition
+    - Local familiarity but same commission model
+jeeny:
+  label: Jeeny Jordan
+  type: minor_player
+  strategic_threat: low
+  notes:
+    - Small footprint
+    - Low strategic pressure in base case
+indrive:
+  label: InDrive
+  type: structural_competitor
+  strategic_threat: high
+  notes:
+    - Lower upfront adoption friction than Wasel
+    - Commission still structurally higher than Wasel for high-volume drivers

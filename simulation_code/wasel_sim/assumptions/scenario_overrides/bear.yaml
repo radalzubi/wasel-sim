@@ -1,0 +1,9 @@
+drivers:
+  monthly_growth_rate: 0.18
+  boycott_multiplier_initial: 1.0
+  avg_trips_per_driver_per_day_assumed: 6.5
+onboarding:
+  m0_m1_churn: 0.40
+  m6_plus_monthly_churn: 0.05
+tiers:
+  blended_fee: 28.00
