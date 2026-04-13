@@ -57,7 +57,8 @@ def plot_driver_growth(sim_df: pd.DataFrame, scenario_name: str = "base"):
 def plot_supply_demand_balance(sim_df: pd.DataFrame):
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(sim_df["month"], sim_df["supply_capacity"], label="Supply capacity")
-    ax.plot(sim_df["month"], sim_df["demand_rides"], label="Rider demand")
+    ax.plot(sim_df["month"], sim_df["rider_supported_demand"], label="Rider-supported demand")
+    ax.plot(sim_df["month"], sim_df["constrained_demand_rides"], label="Constrained demand")
     ax.plot(sim_df["month"], sim_df["market_ride_cap"], label="Market cap")
     ax.set_title("Supply vs demand balance")
     ax.legend()

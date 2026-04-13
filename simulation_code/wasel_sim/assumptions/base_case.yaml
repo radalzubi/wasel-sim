@@ -6,12 +6,16 @@ metadata:
   source_primary: "Wasel Revised Model v2.xlsx"
 
 market:
-  base_monthly_rides_jordan: 2000000
+  base_monthly_rides_jordan: 1500000
   market_growth_rate_annual: 0.052
-  threshold_drivers_for_reliability: 300
-  wasel_max_market_share: 0.15
-  wasel_max_market_share_year3: 0.25
-  wasel_max_market_share_year5: 0.35
+  threshold_drivers_for_reliability: 325
+  driver_liquidity_floor: 0.45
+  wasel_max_market_share: 0.11
+  wasel_max_market_share_year3: 0.17
+  wasel_max_market_share_year5: 0.23
+  launch_reachable_share_year1: 0.55
+  launch_reachable_share_year3: 0.78
+  launch_reachable_share_year5: 0.90
   operating_days_per_month: 26
 
 seasonality:
@@ -19,10 +23,10 @@ seasonality:
 
 drivers:
   seed_month1: 500
-  monthly_growth_rate: 0.30
+  monthly_growth_rate: 0.18
   max_drivers_phase1: 25000
   max_tam_unlicensed: 60000
-  avg_trips_per_driver_per_day_assumed: 9
+  avg_trips_per_driver_per_day_assumed: 7.5
   avg_fare_per_trip: 2.37
   fuel_cost_per_month: 200
   maintenance_cost_per_month: 120
@@ -33,6 +37,11 @@ drivers:
   driver_total_cac: 45
   boycott_multiplier_initial: 1.25
   boycott_multiplier_decay_month: 12
+  min_viable_driver_income_net: 180
+  churn_pressure_utilization_floor: 0.80
+  churn_pressure_max_multiplier: 1.20
+  recruitment_target_utilization: 0.82
+  recruitment_floor_multiplier: 0.40
 
 onboarding:
   m0_duration_months: 1
@@ -72,50 +81,50 @@ platform_costs_per_driver:
   insurance_comprehensive_pro_only: 8.0
   roadside_assistance_core_plus: 3.0
   maintenance_network_pro_only: 2.0
-  cloud_allocated_per_driver: 5.60
-  blended_insurance_per_driver: 8.65
+  cloud_allocated_per_driver: 6.50
+  blended_insurance_per_driver: 12.00
 
 fixed_opex:
   monthly_team_overhead: 7500
   monthly_regulatory: 250
   monthly_legal: 400
-  cloud_base_monthly: 800
-  support_base_monthly: 1500
-  maps_base_monthly: 400
-  sms_base_monthly: 200
+  cloud_base_monthly: 1000
+  support_base_monthly: 2000
+  maps_base_monthly: 650
+  sms_base_monthly: 150
   monthly_da: 972.22
 
 prelaunch_capex:
   app_development: 35000
   ltrc_license_upfront: 0
-  bank_guarantee: 25000
+  bank_guarantee: 50000
   company_registration: 5000
   prelaunch_marketing: 10000
   working_capital_buffer: 40000
-  total: 115000
+  total: 140000
 
 regulatory:
   annual_ltrc_license: 100000
-  bank_guarantee_deposit: 25000
+  bank_guarantee_deposit: 50000
   driver_permit_annual: 200
   annual_compliance_audit: 3000
   license_payment_start_month: 3
 
 riders:
-  initial_waitlist_riders: 12500
+  initial_waitlist_riders: 12000
   monthly_marketing_spend: [12000, 12000, 12000, 8000, 8000, 8000, 5000, 5000, 5000, 5000, 5000, 5000]
-  rider_cac_base: 3.00
-  organic_growth_rate: 0.05
-  avg_rides_per_rider_per_month: 8.5
-  rider_demand_tolerance: 0.10
-  early_rider_churn_rate: 0.15
-  steady_rider_churn_rate: 0.07
+  rider_cac_base: 4.80
+  organic_growth_rate: 0.03
+  avg_rides_per_rider_per_month: 7.0
+  rider_demand_tolerance: 0.05
+  early_rider_churn_rate: 0.12
+  steady_rider_churn_rate: 0.06
   churn_stabilize_month: 3
-  standard_free_mix: 0.85
-  go_paid_mix: 0.10
-  pass_paid_mix: 0.05
-  go_monthly_fee: 5.0
-  pass_monthly_fee: 10.0
+  standard_free_mix: 1.0
+  go_paid_mix: 0.0
+  pass_paid_mix: 0.0
+  go_monthly_fee: 0.0
+  pass_monthly_fee: 0.0
 
 opex_variance:
   monthly_schedule:
@@ -132,38 +141,51 @@ opex_variance:
     11: 4082
     12: 4407
 
-seed_capital: 240000
+seed_capital: 650000
 recommended_raise: 1042000
 
 competitors:
   uber:
-    market_share_initial: 0.50
+    market_share_initial: 0.45
     commission_rate: 0.30
     avg_fare: 2.50
     driver_count: 6000
-    price_war_probability: 0.30
+    price_war_probability: 0.35
     max_discount_to_riders_pct: 0.20
   careem:
-    market_share_initial: 0.48
+    market_share_initial: 0.35
     commission_rate: 0.30
     avg_fare: 2.50
     driver_count: 5600
     price_war_probability: 0.30
     max_discount_to_riders_pct: 0.20
   jeeny:
-    market_share_initial: 0.02
+    market_share_initial: 0.10
     commission_rate: 0.25
     avg_fare: 2.40
-    driver_count: 400
-    price_war_probability: 0.05
+    driver_count: 1000
+    price_war_probability: 0.10
     max_discount_to_riders_pct: 0.10
-  indrive:
-    market_share_initial: 0.005
-    commission_rate: 0.098
-    avg_fare: 2.20
-    driver_count: 200
-    price_war_probability: 0.20
-    max_discount_to_riders_pct: 0.15
+  petra_ride:
+    market_share_initial: 0.06
+    commission_rate: 0.20
+    avg_fare: 2.30
+    driver_count: 500
+    price_war_probability: 0.05
+    max_discount_to_riders_pct: 0.08
+  taxi_f:
+    market_share_initial: 0.04
+    commission_rate: 0.20
+    avg_fare: 2.30
+    driver_count: 300
+    price_war_probability: 0.05
+    max_discount_to_riders_pct: 0.08
+
+competition:
+  pressure_months: 24
+  cac_weight: 0.75
+  organic_growth_penalty_weight: 0.20
+  share_penalty_weight: 0.20
 
 scenarios:
   base:

@@ -15,15 +15,22 @@ careem:
     - Local familiarity but same commission model
 jeeny:
   label: Jeeny Jordan
-  type: minor_player
+  type: regional_challenger
+  strategic_threat: medium
+  notes:
+    - Present in Jordan consumer app stores
+    - Can pressure price-sensitive demand
+petra_ride:
+  label: Petra Ride
+  type: local_player
+  strategic_threat: medium
+  notes:
+    - Named among provisionally licensed smart-app transport providers in Jordan
+    - Smaller footprint but locally relevant
+taxi_f:
+  label: Taxi F
+  type: local_player
   strategic_threat: low
   notes:
-    - Small footprint
-    - Low strategic pressure in base case
-indrive:
-  label: InDrive
-  type: structural_competitor
-  strategic_threat: high
-  notes:
-    - Lower upfront adoption friction than Wasel
-    - Commission still structurally higher than Wasel for high-volume drivers
+    - Named among provisionally licensed smart-app transport providers in Jordan
+    - Smaller threat than Uber, Careem, and Jeeny

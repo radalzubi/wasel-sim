@@ -12,11 +12,17 @@ from src.simulation.engine import run_simulation
 
 ROOT = Path(__file__).resolve().parent
 BASE_CASE = ROOT / "assumptions" / "base_case.yaml"
+SCENARIO_DIR = ROOT / "assumptions" / "scenario_overrides"
 OUTPUT_DIR = ROOT / "outputs"
 
 
-def load_params() -> WaselParams:
-    return WaselParams.from_yaml(BASE_CASE)
+def load_params(scenario: str = "base") -> WaselParams:
+    if scenario == "base":
+        return WaselParams.from_yaml(BASE_CASE)
+    override_path = SCENARIO_DIR / f"{scenario}.yaml"
+    if not override_path.exists():
+        raise click.ClickException(f"Unknown scenario '{scenario}'")
+    return WaselParams.from_yaml(BASE_CASE, override_path=override_path)
 
 
 @click.group()
@@ -27,15 +33,16 @@ def cli():
 @cli.command("run")
 @click.option("--months", default=60, type=int)
 @click.option("--with-charts/--no-charts", default=False)
-def run_cmd(months: int, with_charts: bool):
-    params = load_params()
+@click.option("--scenario", default="base", type=str)
+def run_cmd(months: int, with_charts: bool, scenario: str):
+    params = load_params(scenario)
     sim_df = run_simulation(params, months)
     write_tables(sim_df, OUTPUT_DIR)
     if with_charts:
         from reporting.charts import plot_driver_growth, plot_monthly_cash_curve, plot_supply_demand_balance
 
-        plot_monthly_cash_curve(sim_df)
-        plot_driver_growth(sim_df)
+        plot_monthly_cash_curve(sim_df, scenario_name=scenario)
+        plot_driver_growth(sim_df, scenario_name=scenario)
         plot_supply_demand_balance(sim_df)
     summary = build_summary_table(sim_df)
     click.echo(summary.to_string(index=False))
@@ -43,8 +50,9 @@ def run_cmd(months: int, with_charts: bool):
 
 @cli.command("sensitivity")
 @click.option("--with-charts/--no-charts", default=False)
-def sensitivity_cmd(with_charts: bool):
-    params = load_params()
+@click.option("--scenario", default="base", type=str)
+def sensitivity_cmd(with_charts: bool, scenario: str):
+    params = load_params(scenario)
     detail, pivot = run_one_way_sensitivity(params)
     detail.to_csv(OUTPUT_DIR / "sensitivity_detail.csv", index=False)
     pivot.to_csv(OUTPUT_DIR / "sensitivity_tornado.csv", index=False)
@@ -59,8 +67,9 @@ def sensitivity_cmd(with_charts: bool):
 @click.option("--trials", default=250, type=int)
 @click.option("--months", default=60, type=int)
 @click.option("--with-charts/--no-charts", default=False)
-def monte_carlo_cmd(trials: int, months: int, with_charts: bool):
-    params = load_params()
+@click.option("--scenario", default="base", type=str)
+def monte_carlo_cmd(trials: int, months: int, with_charts: bool, scenario: str):
+    params = load_params(scenario)
     mc_df = run_monte_carlo(params, n_trials=trials, n_months=months)
     mc_df.to_csv(OUTPUT_DIR / "monte_carlo.csv", index=False)
     if with_charts:
@@ -73,8 +82,9 @@ def monte_carlo_cmd(trials: int, months: int, with_charts: bool):
 
 
 @cli.command("report")
-def report_cmd():
-    params = load_params()
+@click.option("--scenario", default="base", type=str)
+def report_cmd(scenario: str):
+    params = load_params(scenario)
     sim_df = run_simulation(params, params.metadata.get("simulation_months", 60))
     path = write_markdown_report(sim_df, OUTPUT_DIR)
     click.echo(f"Wrote report to {path}")
@@ -84,8 +94,9 @@ def report_cmd():
 @click.option("--months", default=60, type=int)
 @click.option("--trials", default=2000, type=int)
 @click.option("--output", default=str(OUTPUT_DIR / "wasel_simulation_results.xlsx"))
-def export_excel_cmd(months: int, trials: int, output: str):
-    params = load_params()
+@click.option("--scenario", default="base", type=str)
+def export_excel_cmd(months: int, trials: int, output: str, scenario: str):
+    params = load_params(scenario)
     sim_df = run_simulation(params, months)
     summary_df = build_summary_table(sim_df)
     sensitivity_detail_df, sensitivity_rank_df = run_one_way_sensitivity(params, n_months=months)
@@ -93,7 +104,7 @@ def export_excel_cmd(months: int, trials: int, output: str):
     mc_stats = compute_mc_statistics(mc_df)
     workbook_path = build_excel_workbook(
         out_path=Path(output),
-        assumptions_path=BASE_CASE,
+        assumptions_path=BASE_CASE if scenario == "base" else SCENARIO_DIR / f"{scenario}.yaml",
         summary_df=summary_df,
         sim_df=sim_df,
         sensitivity_detail_df=sensitivity_detail_df,

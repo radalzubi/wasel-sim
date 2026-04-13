@@ -2,6 +2,10 @@
 
 Production-grade simulation package for Wasel's Jordan launch economics.
 
+## Read first
+
+- Start with [`READ_THIS_FIRST.md`](./READ_THIS_FIRST.md) for the latest model status, current outputs, and handoff notes.
+
 ## What this includes
 
 - Deterministic 60-month simulation

@@ -7,16 +7,16 @@ from src.models.assumptions import WaselParams
 from src.simulation.engine import run_simulation
 
 SENSITIVITY_VARS = {
-    "monthly_growth_rate": (0.10, 0.40),
-    "m0_m1_churn": (0.15, 0.60),
-    "avg_trips_per_driver_per_day_assumed": (5.0, 12.0),
-    "m6_plus_monthly_churn": (0.01, 0.10),
-    "blended_fee": (22.0, 45.0),
-    "m2_m6_monthly_churn": (0.02, 0.10),
-    "rider_cac_base": (2.0, 8.0),
-    "boycott_multiplier_initial": (1.0, 1.5),
-    "monthly_team_overhead": (5250.0, 9750.0),
-    "blended_insurance_per_driver": (5.0, 20.0),
+    "monthly_growth_rate": (0.12, 0.28),
+    "m0_m1_churn": (0.18, 0.38),
+    "avg_trips_per_driver_per_day_assumed": (6.0, 9.5),
+    "m6_plus_monthly_churn": (0.01, 0.05),
+    "blended_fee": (28.0, 36.0),
+    "m2_m6_monthly_churn": (0.02, 0.06),
+    "launch_reachable_share_year1": (0.48, 0.62),
+    "boycott_multiplier_initial": (1.0, 1.30),
+    "monthly_team_overhead": (6500.0, 9000.0),
+    "blended_insurance_per_driver": (9.0, 16.0),
 }
 
 
@@ -28,7 +28,7 @@ def extract_metric(df: pd.DataFrame, metric: str) -> float:
     if metric == "year1_cash_eoy":
         return float(df[df["month"] == 12]["cash_balance"].iloc[0])
     if metric == "breakeven_month":
-        hits = df[df["m2p_total"] >= 1200]
+        hits = df[df["contribution_margin"] > 0]
         return int(hits["month"].iloc[0]) if len(hits) else 999
     raise ValueError(f"Unsupported metric: {metric}")
 

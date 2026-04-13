@@ -12,40 +12,65 @@ from src.simulation.engine import run_simulation
 
 def sample_parameters(base_params: WaselParams, rng: np.random.Generator) -> WaselParams:
     params = base_params
-    params = replace(params, monthly_growth_rate=float(np.clip(rng.beta(2.5, 4.5), 0.05, 0.50)))
-    params = replace(params, m0_m1_churn=float(np.clip(rng.beta(2.0, 4.0), 0.10, 0.70)))
-    params = replace(params, m1_m2_churn=float(np.clip(rng.beta(2.0, 7.0), 0.05, 0.45)))
-    params = replace(params, m2_m6_monthly_churn=float(np.clip(rng.beta(2.0, 28.0), 0.01, 0.20)))
-    params = replace(params, m6_plus_monthly_churn=float(np.clip(rng.beta(1.5, 43.0), 0.005, 0.10)))
     params = replace(
         params,
-        avg_trips_per_driver_per_day_assumed=float(np.clip(rng.normal(7.5, 1.5), 4.0, 12.0)),
+        monthly_growth_rate=float(np.clip(rng.normal(base_params.monthly_growth_rate, 0.035), 0.08, 0.30)),
     )
-    sampled_blended_fee = float(rng.uniform(27.0, 38.0))
+    params = replace(
+        params,
+        m0_m1_churn=float(np.clip(rng.normal(base_params.m0_m1_churn, 0.05), 0.16, 0.40)),
+        m1_m2_churn=float(np.clip(rng.normal(base_params.m1_m2_churn, 0.03), 0.06, 0.18)),
+        m2_m6_monthly_churn=float(
+            np.clip(rng.normal(base_params.m2_m6_monthly_churn, 0.010), 0.02, 0.07)
+        ),
+        m6_plus_monthly_churn=float(
+            np.clip(rng.normal(base_params.m6_plus_monthly_churn, 0.006), 0.01, 0.05)
+        ),
+    )
+    params = replace(
+        params,
+        avg_trips_per_driver_per_day_assumed=float(
+            np.clip(rng.normal(base_params.avg_trips_per_driver_per_day_assumed, 0.55), 6.0, 9.5)
+        ),
+    )
+    sampled_blended_fee = float(np.clip(rng.normal(base_params.blended_fee, 2.0), 28.0, 36.0))
     params = deepcopy(params)
     ratio = sampled_blended_fee / params.blended_fee if params.blended_fee else 1.0
     for tier in params.tiers.values():
         tier.monthly_fee *= ratio
     params.blended_fee = sampled_blended_fee
-    rider_cac = float(np.clip(rng.lognormal(1.1, 0.4), 1.5, 8.0))
+    rider_cac = float(np.clip(rng.normal(base_params.rider_cac_base, 0.7), 3.0, 6.5))
     params = replace(params, rider_cac_base=rider_cac)
-    rider_churn = float(np.clip(rng.beta(3.0, 25.0), 0.03, 0.25))
+    rider_churn = float(
+        np.clip(rng.normal(base_params.early_rider_churn_rate, 0.025), 0.06, 0.18)
+    )
     params = replace(
         params,
         early_rider_churn_rate=rider_churn,
-        steady_rider_churn_rate=rider_churn * 0.5,
+        steady_rider_churn_rate=rider_churn * 0.60,
     )
-    boycott = float(np.clip(rng.triangular(1.0, 1.2, 1.5), 1.0, 1.5))
+    boycott = float(np.clip(rng.normal(base_params.boycott_multiplier_initial, 0.12), 1.0, 1.35))
     params = replace(params, boycott_multiplier_initial=boycott)
-    opex_mult = float(np.clip(rng.normal(1.0, 0.15), 0.7, 1.5))
+    opex_mult = float(np.clip(rng.normal(1.0, 0.08), 0.85, 1.20))
     params = replace(
         params,
         monthly_team_overhead=params.monthly_team_overhead * opex_mult,
         monthly_regulatory=params.monthly_regulatory * opex_mult,
-        blended_insurance_per_driver=float(np.clip(rng.triangular(6.0, 8.65, 15.0), 5.0, 25.0)),
+        blended_insurance_per_driver=float(np.clip(rng.normal(base_params.blended_insurance_per_driver, 1.5), 9.0, 16.0)),
     )
-    if rng.random() < 0.30:
-        params = replace(params, rider_cac_base=params.rider_cac_base * 1.40)
+    if rng.random() < 0.20:
+        params = replace(
+            params,
+            rider_cac_base=params.rider_cac_base * 1.15,
+            competition_cac_weight=params.competition_cac_weight * 1.10,
+        )
+    if rng.random() < 0.15:
+        params = replace(
+            params,
+            launch_reachable_share_year1=max(0.45, params.launch_reachable_share_year1 - 0.05),
+            launch_reachable_share_year3=max(0.65, params.launch_reachable_share_year3 - 0.04),
+            launch_reachable_share_year5=max(0.80, params.launch_reachable_share_year5 - 0.03),
+        )
     return params
 
 
@@ -66,7 +91,7 @@ def run_monte_carlo(
         year2 = df[(df["month"] >= 13) & (df["month"] <= 24)]["net_income"].sum()
         year3 = df[(df["month"] >= 25) & (df["month"] <= 36)]["net_income"].sum()
         year5 = df["net_income"].sum()
-        break_even_hits = df[df["m2p_total"] >= 1200]
+        break_even_hits = df[df["contribution_margin"] > 0]
         break_even_month = int(break_even_hits["month"].iloc[0]) if len(break_even_hits) else 999
         rows.append(
             {
@@ -82,7 +107,7 @@ def run_monte_carlo(
                 "eoy1_cash": float(df[df["month"] == eoy1_month]["cash_balance"].iloc[0]),
                 "eoy2_cash": float(df[df["month"] == eoy2_month]["cash_balance"].iloc[0]),
                 "breakeven_month": break_even_month,
-                "survived": bool((df["cash_balance"] > -1_000_000).all()),
+                "survived_18mo": bool((df[df["month"] <= 18]["cash_balance"] > 0).all()),
             }
         )
     return pd.DataFrame(rows)
@@ -107,6 +132,6 @@ def compute_mc_statistics(mc_df: pd.DataFrame) -> dict:
             "std": float(clean.std()),
         }
     stats["prob_year2_profitable"] = float((mc_df["year2_net_income"] > 0).mean())
-    stats["prob_survived_18mo"] = float(mc_df["survived"].mean())
+    stats["prob_survived_18mo"] = float(mc_df["survived_18mo"].mean())
     stats["prob_breakeven_by_month18"] = float((mc_df["breakeven_month"] <= 18).mean())
     return stats

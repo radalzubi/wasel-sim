@@ -1,9 +1,20 @@
 drivers:
-  monthly_growth_rate: 0.40
-  boycott_multiplier_initial: 1.40
-  avg_trips_per_driver_per_day_assumed: 10
+  monthly_growth_rate: 0.24
+  boycott_multiplier_initial: 1.30
+  avg_trips_per_driver_per_day_assumed: 8.4
 onboarding:
   m0_m1_churn: 0.18
   m6_plus_monthly_churn: 0.015
 tiers:
   blended_fee: 34.00
+riders:
+  initial_waitlist_riders: 15000
+  rider_cac_base: 4.0
+  organic_growth_rate: 0.04
+market:
+  wasel_max_market_share: 0.12
+  wasel_max_market_share_year3: 0.20
+  wasel_max_market_share_year5: 0.26
+  launch_reachable_share_year1: 0.60
+  launch_reachable_share_year3: 0.82
+  launch_reachable_share_year5: 0.92

@@ -18,7 +18,7 @@ def compute_new_drivers(
     prev_state: DriverCohortState,
     params: WaselParams,
     month: int,
-    max_total_drivers: float = float("inf"),
+    recruitment_throttle: float = 1.0,
 ) -> float:
     # Boycott (Uber Flytrex controversy) lowers driver CAC, captured in financial_model via
     # driver_cac_marketing.  It should NOT inflate the raw acquisition count — doing so caused
@@ -27,14 +27,12 @@ def compute_new_drivers(
         raw = float(params.seed_month1)
     else:
         raw = prev_state.total_active * params.monthly_growth_rate
+        raw *= recruitment_throttle
     remaining_tam = max(0.0, params.max_tam_unlicensed - prev_state.total_active)
     raw = min(raw, remaining_tam)
     remaining_regulatory_cap = max(0.0, params.max_drivers_phase1 - prev_state.total_active)
     raw = min(raw, remaining_regulatory_cap)
-    # Hamdi Tabaa balance constraint: don't recruit more drivers than the market can absorb.
-    # max_total_drivers is set by the caller based on market_ride_cap / supply_per_driver.
-    max_from_balance = max(0.0, max_total_drivers - prev_state.total_active)
-    return min(raw, max_from_balance)
+    return raw
 
 
 def update_driver_cohorts(
@@ -42,9 +40,9 @@ def update_driver_cohorts(
     params: WaselParams,
     month: int,
     income_churn_amplifier: float = 1.0,
-    max_total_drivers: float = float("inf"),
+    recruitment_throttle: float = 1.0,
 ) -> DriverCohortState:
-    new_drivers = compute_new_drivers(prev, params, month, max_total_drivers=max_total_drivers)
+    new_drivers = compute_new_drivers(prev, params, month, recruitment_throttle=recruitment_throttle)
     m0_to_m1 = prev.m0_drivers * (1 - params.m0_m1_churn)
     effective_m1_m2 = min(0.99, params.m1_m2_churn * income_churn_amplifier)
     m1_to_m2p = prev.m1_drivers * (1 - effective_m1_m2)

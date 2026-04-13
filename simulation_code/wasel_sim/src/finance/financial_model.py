@@ -6,19 +6,16 @@ from src.models.state import DriverCohortState, FinancialState, OperationsState,
 from src.riders.rider_model import get_rider_marketing_spend
 
 
+def _tier_driver_count(drivers: DriverCohortState, params: WaselParams, tier_name: str) -> float:
+    return drivers.m2p_total * params.tiers[tier_name].driver_mix
+
+
 def compute_driver_subscription_revenue(drivers: DriverCohortState, params: WaselParams) -> float:
     return (
         drivers.m1_drivers * params.m1_fee
-        + drivers.starter_drivers * params.tiers["starter"].monthly_fee
-        + drivers.core_drivers * params.tiers["core"].monthly_fee
-        + drivers.pro_drivers * params.tiers["pro"].monthly_fee
-    )
-
-
-def compute_rider_subscription_revenue(riders: RiderState, params: WaselParams) -> float:
-    return (
-        riders.go_subscribers * params.go_monthly_fee
-        + riders.pass_subscribers * params.pass_monthly_fee
+        + _tier_driver_count(drivers, params, "starter") * params.tiers["starter"].monthly_fee
+        + _tier_driver_count(drivers, params, "core") * params.tiers["core"].monthly_fee
+        + _tier_driver_count(drivers, params, "pro") * params.tiers["pro"].monthly_fee
     )
 
 
@@ -47,9 +44,12 @@ def compute_opex(
     month: int,
     rider_marketing_spend: float,
     params: WaselParams,
-) -> tuple[float, float, float]:
+) -> tuple[float, float, float, float]:
     team = params.monthly_team_overhead
-    regulatory = params.monthly_regulatory
+    regulatory_license_expense = (
+        params.monthly_regulatory
+        + params.annual_compliance_audit / 12.0
+    )
     legal = params.monthly_legal
     support = params.support_base_monthly * max(1.0, math.log(max(1.0, drivers.total_active / 250 + 1)))
     boycott_multiplier = compute_boycott_multiplier(params, month)
@@ -58,14 +58,14 @@ def compute_opex(
     variance = params.opex_variance_monthly.get(month, 0.0)
     total = (
         team
-        + regulatory
+        + regulatory_license_expense
         + legal
         + support
         + driver_mktg
         + rider_marketing_spend
         + variance
     )
-    return total, driver_mktg, rider_marketing_spend
+    return total, driver_mktg, rider_marketing_spend, regulatory_license_expense
 
 
 def compute_license_cash_payment(month: int, params: WaselParams) -> float:
@@ -86,13 +86,17 @@ def compute_financials(
     params: WaselParams,
 ) -> FinancialState:
     driver_rev = compute_driver_subscription_revenue(drivers, params)
-    rider_rev = compute_rider_subscription_revenue(riders, params)
-    total_rev = driver_rev + rider_rev
+    total_rev = driver_rev
     total_cogs = compute_cogs(drivers, ops, driver_rev, params)
     gross_profit = total_rev - total_cogs
     gross_margin = gross_profit / total_rev if total_rev > 0 else 0.0
     rider_mktg = get_rider_marketing_spend(params, month)
-    total_opex, driver_mktg, rider_mktg = compute_opex(drivers, month, rider_mktg, params)
+    total_opex, driver_mktg, rider_mktg, regulatory_license_expense = compute_opex(
+        drivers,
+        month,
+        rider_mktg,
+        params,
+    )
     license_cash_payment = compute_license_cash_payment(month, params)
     contribution_margin = gross_profit - driver_mktg - rider_mktg
     ebitda = gross_profit - total_opex
@@ -101,13 +105,13 @@ def compute_financials(
     cumulative_net_income = prev_cum_ni + net_income
     return FinancialState(
         driver_sub_revenue=driver_rev,
-        rider_sub_revenue=rider_rev,
         total_revenue=total_rev,
         total_cogs=total_cogs,
         gross_profit=gross_profit,
         gross_margin=gross_margin,
         driver_marketing_cost=driver_mktg,
         rider_marketing_cost=rider_mktg,
+        regulatory_license_expense=regulatory_license_expense,
         license_cash_payment=license_cash_payment,
         contribution_margin=contribution_margin,
         total_opex=total_opex,

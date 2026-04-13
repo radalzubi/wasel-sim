@@ -40,9 +40,13 @@ class WaselParams:
     base_monthly_rides_jordan: int
     market_growth_rate_annual: float
     threshold_drivers_for_reliability: int
+    driver_liquidity_floor: float
     wasel_max_market_share: float
     wasel_max_market_share_year3: float
     wasel_max_market_share_year5: float
+    launch_reachable_share_year1: float
+    launch_reachable_share_year3: float
+    launch_reachable_share_year5: float
     operating_days_per_month: int
     seasonality_factors: List[float]
     seed_month1: int
@@ -60,6 +64,11 @@ class WaselParams:
     driver_total_cac: float
     boycott_multiplier_initial: float
     boycott_multiplier_decay_month: int
+    min_viable_driver_income_net: float
+    churn_pressure_utilization_floor: float
+    churn_pressure_max_multiplier: float
+    recruitment_target_utilization: float
+    recruitment_floor_multiplier: float
     m0_fee: float
     m0_m1_churn: float
     m1_fee: float
@@ -98,9 +107,14 @@ class WaselParams:
     opex_variance_monthly: Dict[int, float]
     annual_ltrc_license: float
     license_payment_start_month: int
+    annual_compliance_audit: float
     seed_capital: float
     total_prelaunch_capex: float
     recommended_raise: float
+    competition_pressure_months: int
+    competition_cac_weight: float
+    competition_organic_growth_penalty_weight: float
+    competition_share_penalty_weight: float
     competitors: Dict[str, CompetitorConfig]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -132,6 +146,7 @@ class WaselParams:
             base_monthly_rides_jordan=raw["market"]["base_monthly_rides_jordan"],
             market_growth_rate_annual=raw["market"]["market_growth_rate_annual"],
             threshold_drivers_for_reliability=raw["market"]["threshold_drivers_for_reliability"],
+            driver_liquidity_floor=raw["market"].get("driver_liquidity_floor", 0.0),
             wasel_max_market_share=raw["market"]["wasel_max_market_share"],
             wasel_max_market_share_year3=raw["market"].get(
                 "wasel_max_market_share_year3",
@@ -141,6 +156,9 @@ class WaselParams:
                 "wasel_max_market_share_year5",
                 raw["market"].get("wasel_max_market_share_year3", raw["market"]["wasel_max_market_share"]),
             ),
+            launch_reachable_share_year1=raw["market"].get("launch_reachable_share_year1", 1.0),
+            launch_reachable_share_year3=raw["market"].get("launch_reachable_share_year3", 1.0),
+            launch_reachable_share_year5=raw["market"].get("launch_reachable_share_year5", 1.0),
             operating_days_per_month=raw["market"]["operating_days_per_month"],
             seasonality_factors=raw["seasonality"]["factors"],
             seed_month1=raw["drivers"]["seed_month1"],
@@ -158,6 +176,11 @@ class WaselParams:
             driver_total_cac=raw["drivers"]["driver_total_cac"],
             boycott_multiplier_initial=raw["drivers"]["boycott_multiplier_initial"],
             boycott_multiplier_decay_month=raw["drivers"]["boycott_multiplier_decay_month"],
+            min_viable_driver_income_net=raw["drivers"].get("min_viable_driver_income_net", 150.0),
+            churn_pressure_utilization_floor=raw["drivers"].get("churn_pressure_utilization_floor", 0.80),
+            churn_pressure_max_multiplier=raw["drivers"].get("churn_pressure_max_multiplier", 1.20),
+            recruitment_target_utilization=raw["drivers"].get("recruitment_target_utilization", 0.80),
+            recruitment_floor_multiplier=raw["drivers"].get("recruitment_floor_multiplier", 0.40),
             m0_fee=raw["onboarding"]["m0_fee"],
             m0_m1_churn=raw["onboarding"]["m0_m1_churn"],
             m1_fee=raw["onboarding"]["m1_fee"],
@@ -196,9 +219,17 @@ class WaselParams:
             opex_variance_monthly={int(k): float(v) for k, v in raw["opex_variance"]["monthly_schedule"].items()},
             annual_ltrc_license=raw["regulatory"]["annual_ltrc_license"],
             license_payment_start_month=raw["regulatory"].get("license_payment_start_month", 1),
+            annual_compliance_audit=raw["regulatory"].get("annual_compliance_audit", 0.0),
             seed_capital=raw["seed_capital"],
             total_prelaunch_capex=raw["prelaunch_capex"]["total"],
             recommended_raise=raw["recommended_raise"],
+            competition_pressure_months=raw.get("competition", {}).get("pressure_months", 24),
+            competition_cac_weight=raw.get("competition", {}).get("cac_weight", 0.5),
+            competition_organic_growth_penalty_weight=raw.get("competition", {}).get(
+                "organic_growth_penalty_weight",
+                0.35,
+            ),
+            competition_share_penalty_weight=raw.get("competition", {}).get("share_penalty_weight", 0.40),
             competitors=competitors,
             metadata=raw.get("metadata", {}),
         )
@@ -214,9 +245,23 @@ class WaselParams:
             0 < self.wasel_max_market_share <= self.wasel_max_market_share_year3 <= self.wasel_max_market_share_year5 <= 1
         ):
             raise ValueError("market share ramp must be positive, non-decreasing, and <= 1")
+        if not (
+            0 < self.launch_reachable_share_year1 <= self.launch_reachable_share_year3 <= self.launch_reachable_share_year5 <= 1
+        ):
+            raise ValueError("launch reachable share ramp must be positive, non-decreasing, and <= 1")
+        if not 0.0 <= self.driver_liquidity_floor <= 0.95:
+            raise ValueError("driver_liquidity_floor must be between 0 and 0.95")
         if self.initial_waitlist_riders < 0:
             raise ValueError("initial_waitlist_riders cannot be negative")
         if not 0.0 <= self.rider_demand_tolerance <= 0.50:
             raise ValueError("rider_demand_tolerance must be between 0 and 0.50")
+        if not 0.50 <= self.churn_pressure_utilization_floor <= 1.0:
+            raise ValueError("churn_pressure_utilization_floor must be between 0.50 and 1.0")
+        if not 1.0 <= self.churn_pressure_max_multiplier <= 2.0:
+            raise ValueError("churn_pressure_max_multiplier must be between 1.0 and 2.0")
+        if not 0.50 <= self.recruitment_target_utilization <= 1.0:
+            raise ValueError("recruitment_target_utilization must be between 0.50 and 1.0")
+        if not 0.0 <= self.recruitment_floor_multiplier <= 1.0:
+            raise ValueError("recruitment_floor_multiplier must be between 0 and 1.0")
         if len(self.seasonality_factors) != 12:
             raise ValueError("seasonality_factors must have 12 monthly values")

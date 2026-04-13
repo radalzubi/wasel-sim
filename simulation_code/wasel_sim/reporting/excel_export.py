@@ -75,12 +75,12 @@ def build_excel_workbook(
     summary_ws["A3"].fill = SECTION_FILL
     summary_ws["A3"].font = Font(name="Arial", bold=True)
     changes = [
-        "Rider subscription revenue removed from total revenue.",
-        "Launch model assumes a 500-driver pre-launch waitlist and a seeded rider waitlist.",
-        "Driver boycott multiplier affects CAC rather than driver headcount.",
-        "Rider demand supports utilization with a 10% tolerance buffer, still capped by market share.",
-        "The 15% share cap is now treated as a Year 1 ceiling and ramps through Years 3 and 5.",
-        "LTRC license is treated as a cash outflow starting in Month 3, not as recurring P&L drag.",
+        "Revenue comes only from driver-side monetization; rider subscriptions are excluded.",
+        "Launch demand is geographically constrained early and expands over time.",
+        "Competitor pressure now raises rider CAC, slows organic growth, and trims share capture early.",
+        "Rider demand supports utilization with a tolerance buffer and explicit constrained-demand tracking.",
+        "LTRC license is expensed monthly in P&L and paid as a cash outflow on the renewal month.",
+        "Operational break-even is defined as contribution margin turning positive.",
     ]
     for idx, text in enumerate(changes, start=4):
         summary_ws[f"A{idx}"] = text

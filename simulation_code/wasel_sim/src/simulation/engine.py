@@ -25,26 +25,21 @@ def run_simulation(params: WaselParams, n_months: int = 60) -> pd.DataFrame:
         # rider base (Hamdi Tabaa's guidance: no side should far outpace the other).
         riders_new = update_rider_base(riders, params, month, boycott_multiplier=boycott)
 
-        # Hamdi Tabaa balance: pace driver recruitment so supply does not materially outrun
-        # sustainable market demand.  The intended rule is a 120% buffer above the
-        # market-cap-implied sustainable count, not the earlier looser 3× oversupply allowance.
-        # When market_cap_pre == 0 (pre-launch, no drivers yet) we skip the cap entirely so
-        # the seed cohort is placed unconditionally.
-        supply_per_driver = (
-            params.avg_trips_per_driver_per_day_assumed * params.operating_days_per_month
-        )
-        if market_cap_pre > 0 and supply_per_driver > 0:
-            max_total_drivers = market_cap_pre / supply_per_driver * 1.2
+        if month == 1:
+            recruitment_throttle = 1.0
         else:
-            max_total_drivers = float("inf")
-        max_total_drivers = min(max_total_drivers, float(params.max_drivers_phase1))
+            recruitment_throttle = ops_pre.utilization_ratio / params.recruitment_target_utilization
+            recruitment_throttle = max(
+                params.recruitment_floor_multiplier,
+                min(1.0, recruitment_throttle),
+            )
 
         drivers_new = update_driver_cohorts(
             drivers,
             params,
             month,
             income_churn_amplifier=ops_pre.income_churn_amplifier,
-            max_total_drivers=max_total_drivers,
+            recruitment_throttle=recruitment_throttle,
         )
         market_cap_post = wasel_addressable_rides(month, drivers_new.total_active, params)
         ops = compute_matching(drivers_new, riders_new, params, market_ride_cap=market_cap_post)
@@ -67,19 +62,20 @@ def run_simulation(params: WaselParams, n_months: int = 60) -> pd.DataFrame:
                 "churned_riders": riders_new.churned_riders_this_month,
                 "actual_rides": ops.actual_rides,
                 "supply_capacity": ops.supply_capacity,
-                "demand_rides": ops.demand_rides,
-                "fulfillment_rate": ops.fulfillment_rate,
+                "rider_supported_demand": ops.rider_supported_demand,
+                "constrained_demand_rides": ops.constrained_demand_rides,
+                "constrained_demand_served_ratio": ops.constrained_demand_served_ratio,
                 "actual_trips_per_driver_per_day": ops.actual_trips_per_driver_per_day,
                 "utilization_ratio": ops.utilization_ratio,
                 "income_churn_amplifier": ops.income_churn_amplifier,
                 "driver_sub_revenue": fin.driver_sub_revenue,
-                "rider_sub_revenue": fin.rider_sub_revenue,
                 "total_revenue": fin.total_revenue,
                 "total_cogs": fin.total_cogs,
                 "gross_profit": fin.gross_profit,
                 "gross_margin": fin.gross_margin,
                 "driver_marketing": fin.driver_marketing_cost,
                 "rider_marketing": fin.rider_marketing_cost,
+                "regulatory_license_expense": fin.regulatory_license_expense,
                 "license_cash_payment": fin.license_cash_payment,
                 "contribution_margin": fin.contribution_margin,
                 "total_opex": fin.total_opex,

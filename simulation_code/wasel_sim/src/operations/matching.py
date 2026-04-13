@@ -1,8 +1,6 @@
 from src.models.assumptions import WaselParams
 from src.models.state import DriverCohortState, OperationsState, RiderState
 
-MIN_VIABLE_DRIVER_INCOME = 150.0
-
 
 def compute_matching(
     drivers: DriverCohortState,
@@ -25,7 +23,7 @@ def compute_matching(
     else:
         demand_cap = min(market_ride_cap, rider_supported_demand)
     actual_rides = min(supply_capacity, demand_cap)
-    fulfillment_rate = actual_rides / demand_cap if demand_cap > 0 else 1.0
+    constrained_demand_served_ratio = actual_rides / demand_cap if demand_cap > 0 else 0.0
     actual_tpd = (
         actual_rides / (drivers.total_active * params.operating_days_per_month)
         if drivers.total_active > 0
@@ -38,19 +36,25 @@ def compute_matching(
     )
     actual_driver_gross = actual_tpd * params.avg_fare_per_trip * params.operating_days_per_month
     actual_driver_net_before_subscription = actual_driver_gross - params.total_driver_opex
-    if actual_driver_net_before_subscription < MIN_VIABLE_DRIVER_INCOME:
+    if drivers.total_active <= 0:
+        income_churn_amplifier = 1.0
+    elif utilization_ratio < params.churn_pressure_utilization_floor:
         shortfall_pct = (
-            MIN_VIABLE_DRIVER_INCOME - actual_driver_net_before_subscription
-        ) / MIN_VIABLE_DRIVER_INCOME
-        income_churn_amplifier = 1.0 + shortfall_pct * 2.0
+            params.churn_pressure_utilization_floor - utilization_ratio
+        ) / params.churn_pressure_utilization_floor
+        income_churn_amplifier = min(
+            params.churn_pressure_max_multiplier,
+            1.0 + shortfall_pct * (params.churn_pressure_max_multiplier - 1.0),
+        )
     else:
         income_churn_amplifier = 1.0
     return OperationsState(
         actual_rides=actual_rides,
         supply_capacity=supply_capacity,
-        demand_rides=demand_cap,
+        rider_supported_demand=rider_supported_demand,
+        constrained_demand_rides=demand_cap,
         market_ride_cap=market_ride_cap or demand_cap,
-        fulfillment_rate=fulfillment_rate,
+        constrained_demand_served_ratio=constrained_demand_served_ratio,
         actual_trips_per_driver_per_day=actual_tpd,
         utilization_ratio=utilization_ratio,
         income_churn_amplifier=income_churn_amplifier,

@@ -1,3 +1,7 @@
+from src.competitors.competitor_model import (
+    organic_growth_penalty_multiplier,
+    rider_acquisition_pressure_multiplier,
+)
 from src.models.assumptions import WaselParams
 from src.models.state import RiderState
 
@@ -16,8 +20,13 @@ def update_rider_base(
 ) -> RiderState:
     marketing_spend = get_rider_marketing_spend(params, month)
     effective_cac = params.rider_cac_base / min(boycott_multiplier, 1.25)
+    effective_cac *= rider_acquisition_pressure_multiplier(month, params)
     marketing_riders = marketing_spend / effective_cac if effective_cac else 0.0
-    organic_riders = prev.total_riders * params.organic_growth_rate
+    organic_riders = (
+        prev.total_riders
+        * params.organic_growth_rate
+        * organic_growth_penalty_multiplier(month, params)
+    )
     churn_rate = (
         params.early_rider_churn_rate
         if month <= params.churn_stabilize_month

@@ -1,0 +1,12 @@
+assumption,previous,revised,why,action
+launch_reachable_share_year1,0.43,0.55,Amman ride demand is more concentrated than national population share; 0.43 was over-shrinking the launch pool.,revise
+wasel_max_market_share_year1,0.10,0.11,Kept conservative but removed an unnecessarily tight year-1 share ceiling.,revise
+threshold_drivers_for_reliability,350,325,Linear reliability gate was too punitive for an Amman-first launch.,revise
+driver_liquidity_floor,0.00,0.45,Focused-city liquidity should not collapse linearly with total active drivers.,add
+initial_waitlist_riders,9000,12000,500 launch drivers were underfed by the previous waitlist assumption.,revise
+avg_rides_per_rider_per_month,6.5,7.0,Slightly higher rider intensity makes the launch pool internally coherent without forcing optimism.,revise
+competition_penalties,CAC 0.75 / organic 0.45 / share 0.60,CAC 0.75 / organic 0.20 / share 0.20,Competitor response should stay active but not hit every growth lever at full strength.,revise
+churn_pressure,"Net-income triggered, uncapped practical 2-3x","Utilization triggered, capped at 1.20x",Same-month income punishment was the main runaway collapse loop.,redesign
+driver_recruitment_control,Hard same-month active-driver ceiling,Soft utilization-based recruitment throttle,"Supply should slow when density is weak, not get hard-capped by a circular demand estimate.",redesign
+annual_ltrc_license_treatment,Monthly P&L accrual plus annual cash payment,Annual cash payment only; monthly compliance stays in OPEX,The prior treatment over-penalized operating economics while also hitting cash.,redesign
+seed_capital,240000,650000,"The prior opening cash guaranteed 18-month failure even when operations improved; this tests the business, not pure underfunding.",revise
