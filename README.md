@@ -30,7 +30,7 @@ Monte Carlo (500 trials, seed 42, base case): Year 2 net income P10 / P50 / P90 
 
 ## Tech stack
 
-- Python 3.10 or newer (checked on 3.14)
+- Python 3.12 or newer (checked on 3.14)
 - pandas and NumPy for the simulation and tables
 - PyYAML for assumption files, with scenario overrides deep-merged onto the base case
 - Click for the command-line interface
@@ -38,7 +38,7 @@ Monte Carlo (500 trials, seed 42, base case): Year 2 net income P10 / P50 / P90 
 - openpyxl for Excel export
 - pytest for tests
 
-There is no `requirements.txt` in the repo yet; the packages above are the third-party imports found in the code.
+Pinned versions are in `simulation_code/wasel_sim/requirements.txt`. Plotly is listed there as an optional, commented-out extra.
 
 ## Repository layout
 
@@ -58,6 +58,7 @@ Inside `simulation_code/wasel_sim/`:
 | Path | Contents |
 |---|---|
 | `main.py` | Command-line entry point |
+| `requirements.txt` | Pinned runtime and test dependencies |
 | `assumptions/` | `base_case.yaml`, `scenario_overrides/` (bear, bull, stress_low_demand), and `competitor_profiles.yaml` (qualitative notes, not read by the code) |
 | `src/` | Model code: `drivers`, `riders`, `market`, `operations` (matching), `competitors`, `finance`, `simulation`, `sensitivity`, `monte_carlo`, `models` |
 | `reporting/` | Summary tables, Markdown report, charts, Excel export |
@@ -72,7 +73,7 @@ Run everything from `simulation_code/wasel_sim/`, because the chart code and tes
 ```bash
 cd simulation_code/wasel_sim
 python3 -m venv .venv && source .venv/bin/activate
-pip install click pandas numpy pyyaml matplotlib openpyxl pytest
+pip install -r requirements.txt
 
 python3 main.py run                          # 60-month base case, prints a summary table
 python3 main.py run --scenario bull          # or: bear, stress_low_demand

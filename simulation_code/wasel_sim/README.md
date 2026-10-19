@@ -21,6 +21,7 @@ Production-grade simulation package for Wasel's Jordan launch economics.
 
 ```bash
 cd /Users/radalzubi/Desktop/wg1/simulation_code/wasel_sim
+pip install -r requirements.txt
 python3 main.py run
 python3 main.py sensitivity
 python3 main.py monte-carlo --trials 250
@@ -30,5 +31,4 @@ pytest
 
 ## Notes
 
-- `pydantic`, `plotly`, and `scipy` are not installed in this environment.
-- This implementation uses compatible stdlib fallbacks so the project runs locally now instead of requiring network installs first.
+- `requirements.txt` pins the packages the CLI and tests need (Python 3.12 or newer). Plotly is optional; without it the cash curve is written as a PNG.
