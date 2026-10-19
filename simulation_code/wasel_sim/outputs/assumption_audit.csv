@@ -10,3 +10,4 @@ churn_pressure,"Net-income triggered, uncapped practical 2-3x","Utilization trig
 driver_recruitment_control,Hard same-month active-driver ceiling,Soft utilization-based recruitment throttle,"Supply should slow when density is weak, not get hard-capped by a circular demand estimate.",redesign
 annual_ltrc_license_treatment,Monthly P&L accrual plus annual cash payment,Annual cash payment only; monthly compliance stays in OPEX,The prior treatment over-penalized operating economics while also hitting cash.,redesign
 seed_capital,240000,650000,"The prior opening cash guaranteed 18-month failure even when operations improved; this tests the business, not pure underfunding.",revise
+stress_low_demand avg_trips_per_driver_per_day_assumed,5.5,Not overridden (inherits base 7.5),"Lower per-driver capacity read as higher utilization, so the low-demand scenario recruited more drivers and beat the base case. The scenario now changes rider demand only.",remove

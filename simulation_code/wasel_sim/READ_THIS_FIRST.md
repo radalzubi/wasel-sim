@@ -44,4 +44,5 @@ This is the current handoff file for anyone reopening or continuing work on the 
 - Do not use a universal rider:driver ratio as the controlling mechanic.
 - Treat Amman-first launch density as the main operational reality.
 - If the model starts collapsing back to near-zero drivers in most paths, inspect churn pressure, launch reach, and recruitment throttling first.
+- `avg_trips_per_driver_per_day_assumed` is per-driver ride capacity, and utilization is measured against it. Raising it lowers Year 2 net income and lowering it raises income: fewer, busier drivers pay fewer flat subscriptions, and driver churn does not respond to driver earnings (`min_viable_driver_income_net` is loaded but not used). Read the sensitivity and Monte Carlo results for this variable with that in mind, and keep it out of demand-only scenarios such as `stress_low_demand`.
 
