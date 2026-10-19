@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.platypus import (
@@ -9,7 +11,7 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 pt = 1
 
-OUTPUT = "/Users/radalzubi/Desktop/wg1/Husam Khoury/project_brief.pdf"
+OUTPUT = str(Path(__file__).resolve().parent / "project_brief.pdf")
 W, H   = A4
 ML = MR = 50 * pt
 MT = 42 * pt

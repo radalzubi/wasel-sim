@@ -20,7 +20,7 @@ Production-grade simulation package for Wasel's Jordan launch economics.
 ## Quick start
 
 ```bash
-cd /Users/radalzubi/Desktop/wg1/simulation_code/wasel_sim
+cd simulation_code/wasel_sim
 pip install -r requirements.txt
 python3 main.py run
 python3 main.py sensitivity
