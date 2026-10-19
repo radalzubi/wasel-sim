@@ -43,3 +43,9 @@ simulation_code/wasel_sim/outputs/*.csv
 
 # Keep the markdown report in version control
 !simulation_code/wasel_sim/outputs/simulation_report.md
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Matplotlib font cache (reporting/charts.py points MPLCONFIGDIR here)
+simulation_code/wasel_sim/.mplconfig/

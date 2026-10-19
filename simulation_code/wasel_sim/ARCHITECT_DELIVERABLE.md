@@ -12,4 +12,4 @@ This folder implements the simulation system described in the Wasel market simul
 - Monte Carlo analysis
 - reporting artifacts
 
-Primary implementation root: [main.py](/Users/radalzubi/Desktop/wg1/simulation_code/wasel_sim/main.py)
+Primary implementation root: [main.py](./main.py)
