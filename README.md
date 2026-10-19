@@ -96,7 +96,7 @@ Under `simulation_code/wasel_sim/outputs/`:
 - `sensitivity.csv` and `monte_carlo.csv`: sensitivity ranking and 500 Monte Carlo trials
 - `assumption_audit.csv`: log of assumption changes and the reasoning for each
 - `*.xlsx`: Excel workbooks (Summary, Assumptions, Monthly Simulation, sensitivity and Monte Carlo sheets) from several model revisions
-- `simulation_report.md`: the committed copy is from an earlier model revision, so use `final_summary.md` or re-run `main.py report` for current figures
+- `simulation_report.md`: base-case headline metrics written by `main.py report`, including operational and financial break-even months (matches `final_summary.md`)
 
 Charts are not committed. `--with-charts` generates `cash_curve_base.png` (an HTML file instead if Plotly is installed), `driver_growth_base.png`, `supply_demand_balance.png`, `tornado_chart.png`, and `mc_year2_net_income.png`.
 
