@@ -1,0 +1,14 @@
+# Runtime and test dependencies for the Wasel simulation.
+# Versions are the ones the full CLI and test suite were last run with (Python 3.14).
+# numpy 2.5 needs Python 3.12 or newer.
+click==8.5.0
+matplotlib==3.11.2
+numpy==2.5.4
+openpyxl==3.1.5
+pandas==3.0.6
+PyYAML==6.0.3
+pytest==9.1.1
+
+# Optional: with Plotly installed, `--with-charts` writes the cash curve as
+# interactive HTML (cash_curve_base.html) instead of a PNG.
+# plotly==7.1.0
