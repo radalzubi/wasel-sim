@@ -62,7 +62,7 @@ Inside `simulation_code/wasel_sim/`:
 | `assumptions/` | `base_case.yaml`, `scenario_overrides/` (bear, bull, stress_low_demand), and `competitor_profiles.yaml` (qualitative notes, not read by the code) |
 | `src/` | Model code: `drivers`, `riders`, `market`, `operations` (matching), `competitors`, `finance`, `simulation`, `sensitivity`, `monte_carlo`, `models` |
 | `reporting/` | Summary tables, Markdown report, charts, Excel export |
-| `tests/` | Unit tests (8 tests) |
+| `tests/` | Unit tests (9 tests) |
 | `outputs/` | Committed results from earlier runs (see below) |
 | `notebooks/` | Placeholder exploration notebook |
 

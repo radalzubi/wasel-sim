@@ -1,6 +1,13 @@
+# Low rider demand: riders cost more to acquire and churn faster.
+#
+# This scenario changes rider-side inputs only. Do not lower
+# drivers.avg_trips_per_driver_per_day_assumed here: in this model it sets each
+# driver's ride capacity and is the denominator of the utilization ratio. A lower
+# value makes the same demand look like higher utilization, which eases the
+# recruitment throttle and churn pressure and grows the driver base (and flat
+# subscription revenue). Lower trips per driver should come out of weaker demand,
+# not be assumed in.
 riders:
   rider_cac_base: 6.0
   early_rider_churn_rate: 0.18
   steady_rider_churn_rate: 0.10
-drivers:
-  avg_trips_per_driver_per_day_assumed: 5.5
