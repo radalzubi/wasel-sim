@@ -1,5 +1,22 @@
 # Wasel Simulation
 
+[![CI](https://github.com/radalzubi/wasel-sim/actions/workflows/tests.yml/badge.svg)](https://github.com/radalzubi/wasel-sim/actions/workflows/tests.yml)
+
+**A reproducible model of how marketplace supply, rider demand and cash flow interact.**
+
+Built by [Rad AlZubi](https://github.com/radalzubi). I implemented the cohort model, simulation, scenarios, sensitivity analysis and Monte Carlo workflow to test Wasel's operating assumptions alongside the product.
+
+The model connects driver utilization to recruitment and churn, limits rides by supply and demand, and carries the consequences into monthly financials. Its value is making the business assumptions testable.
+
+**Start here:** [simulation engine](simulation_code/wasel_sim/src/simulation/engine.py) · [base assumptions](simulation_code/wasel_sim/assumptions/base_case.yaml) · [recorded results](simulation_code/wasel_sim/outputs/final_summary.md)
+
+**Evidence:** outputs are conditional on planning assumptions, not observed rides, verified waitlist traction or a forecast of future revenue. Tests check model behavior; they do not validate demand.
+
+[Ride-hailing implementation](https://github.com/radalzubi/Wasel-MVP)
+
+---
+
+
 Wasel is a ride-hailing startup for Jordan and the wider MENA region. This repository holds the Python simulation used to stress-test Wasel's launch economics, alongside the planning materials (brand, financials, execution plan, rider demand playbook, pitch decks) that the model supports. The simulation is a 60-month, cohort-based model of driver supply, rider demand, competitor pressure, regulatory costs, and cash, with scenario runs, one-way sensitivity analysis, and a Monte Carlo engine. Its inputs are planning assumptions, not observed operating data, so its outputs show what follows from those assumptions rather than forecasts.
 
 ## What the simulation models
